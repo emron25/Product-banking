@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="title">Digital Banking Nevin: Coreless Saga Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles to enhance the digital/pro look and feel */
+        body {
+            /* Changed font to Calibri as requested, with standard fallbacks */
+            font-family: 'Calibri', Tahoma, Arial, sans-serif;
+            background-color: #0c141c; /* Deeper dark background */
+        }
+        .card {
+            background-color: #1a222c;
+            border: 1px solid #36404d;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.6);
+        }
+        .log-entry {
+            border-left: 3px solid;
+            padding-left: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        /* Color Scheme adjustments for a more vibrant digital feel */
+        .log-success { border-left-color: #10b981; } /* Emerald Green */
+        .log-warning { border-left-color: #f59e0b; } /* Amber Yellow */
+        .log-error { border-left-color: #ef4444; } /* Red */
+        .log-info { border-left-color: #3b82f6; } /* Blue */
+
+        /* RTL specific adjustments for logging */
+        [dir="rtl"] .log-entry {
+            border-left: none;
+            border-right: 3px solid;
+            padding-left: 0;
+            padding-right: 0.75rem;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 text-gray-100 min-h-screen">
+
+    <div class="max-w-6xl mx-auto">
+        <header class="text-center mb-8">
+            <!-- Language Selector -->
+            <div class="flex justify-center mb-6">
+                <div class="inline-flex rounded-xl shadow-lg overflow-hidden bg-gray-700">
+                    <button class="px-4 py-2 text-sm font-medium transition duration-150" id="lang-en" onclick="setLanguage('en')">English</button>
+                    <button class="px-4 py-2 text-sm font-medium transition duration-150" id="lang-fa" onclick="setLanguage('fa')">فارسی</button>
+                    <button class="px-4 py-2 text-sm font-medium transition duration-150" id="lang-ar" onclick="setLanguage('ar')">العربية</button>
+                </div>
+            </div>
+
+            <h1 class="text-4xl font-extrabold text-blue-400" data-i18n="header_title">Coreless Saga Pattern Simulator</h1>
+            <p class="mt-2 text-lg text-gray-400" data-i18n="header_subtitle">
+                Demonstrating Distributed Transaction Consistency for Cross-Service Transfers.
+            </p>
+        </header>
+
+        <!-- Main Simulation Area -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Core Services Status -->
+            <div class="card p-6 rounded-xl col-span-1">
+                <h2 class="text-xl font-semibold mb-4 text-blue-300 border-b border-gray-700 pb-2" data-i18n="services_title">Simulated Core Services</h2>
+
+                <!-- Checking Service -->
+                <div class="mb-6 p-4 rounded-xl bg-gray-800 border border-green-500/30">
+                    <h3 class="font-medium text-lg text-green-400 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-13.5 1.5h15m-15 3.75h15" />
+                        </svg>
+                        <span data-i18n="chk_service_name">Checking Account Service</span>
+                    </h3>
+                    <p class="text-sm text-gray-400" data-i18n="chk_db_label">Database (Source of Funds)</p>
+                    <div class="mt-2 text-3xl font-mono text-white">
+                        <span id="checking-balance" class="font-bold"></span>
+                    </div>
+                </div>
+
+                <!-- Savings Service -->
+                <div class="p-4 rounded-xl bg-gray-800 border border-yellow-500/30">
+                    <h3 class="font-medium text-lg text-yellow-400 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.01 60.01 0 0 0 18 0M3 8.25a60.01 60.01 0 0 1 18 0M6.75 6.75h.75V3h-.75V6.75Zm0 10.5h.75v3h-.75v-3Zm7.5-6h.75v3h-.75v-3Z" />
+                        </svg>
+                        <span data-i18n="sav_service_name">Savings Account Service</span>
+                    </h3>
+                    <p class="text-sm text-gray-400" data-i18n="sav_db_label">Database (Destination)</p>
+                    <div class="mt-2 text-3xl font-mono text-white">
+                        <span id="savings-balance" class="font-bold"></span>
+                    </div>
+                </div>
+
+                <!-- Control Panel -->
+                <div class="mt-6 pt-4 border-t border-gray-700">
+                    <h3 class="text-xl font-semibold mb-3 text-gray-300" data-i18n="control_title">Initiate Transfer (Saga)</h3>
+                    <div class="mb-3">
+                        <label for="transfer-amount" class="block text-sm font-medium text-gray-400" data-i18n="amount_label">Amount to Transfer</label>
+                        <input type="number" id="transfer-amount" value="50.00" min="1" step="0.01" class="mt-1 block w-full rounded-xl border-gray-600 bg-gray-700 text-white p-3 focus:ring-blue-500 focus:border-blue-500" placeholder="50.00">
+                    </div>
+                    <div class="mb-4 p-3 bg-red-900/20 rounded-xl">
+                        <label for="fail-step-2" class="flex items-center text-sm font-medium text-red-300 cursor-pointer">
+                            <input type="checkbox" id="fail-step-2" class="h-4 w-4 text-red-500 rounded border-red-600 focus:ring-red-500 bg-gray-700">
+                            <span class="ml-2" data-i18n="fail_label">Simulate Failure on Step 2 (Trigger Compensation)</span>
+                        </label>
+                        <p class="text-xs text-red-400 mt-1" data-i18n="fail_desc">If checked, the transfer will fail, and the funds will be **rolled back** from Checking.</p>
+                    </div>
+
+                    <button id="transfer-button" onclick="startTransfer()" class="w-full py-3 px-4 rounded-xl font-bold bg-green-600 hover:bg-green-700 text-white transition duration-200 disabled:bg-gray-600 disabled:cursor-not-allowed">
+                        <span data-i18n="button_text">Run Cross-Service Transfer Saga</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Transaction Log -->
+            <div class="card p-6 rounded-xl col-span-2">
+                <h2 class="text-xl font-semibold mb-4 text-orange-300 border-b border-gray-700 pb-2" data-i18n="log_title">Saga Orchestration Log</h2>
+                <div id="log-container" class="space-y-2 h-[400px] overflow-y-auto pr-2 text-sm bg-gray-900 p-4 rounded-xl">
+                    <p class="text-gray-500" data-i18n="log_initial">Log starts here. Initiate a transfer to begin the distributed transaction process.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Architecture Key -->
+        <div class="mt-8 p-6 card rounded-xl">
+            <h2 class="text-xl font-semibold mb-3 text-gray-300" data-i18n="arch_title">Architecture Key: Saga Pattern</h2>
+            <p class="text-gray-400" data-i18n="arch_desc">The Saga pattern is used when a single logical transaction must span multiple microservices, each with its own local database. If any local step fails, a series of **Compensating Transactions** must be triggered to undo prior successful steps, ensuring system-wide data consistency.</p>
+        </div>
+    </div>
+
+    <script>
+        // --- TRANSLATION DATA ---
+        const translations = {
+            en: {
+                // Global
+                lang_code: 'en-US',
+                dir: 'ltr',
+                title: 'Digital Banking Nevin: Coreless Saga Simulation',
+                header_title: 'Coreless Saga Pattern Simulator',
+                header_subtitle: 'Demonstrating Distributed Transaction Consistency for Cross-Service Transfers.',
+                // Services
+                services_title: 'Simulated Core Services',
+                chk_service_name: 'Checking Account Service',
+                chk_db_label: 'Database (Source of Funds)',
+                sav_service_name: 'Savings Account Service',
+                sav_db_label: 'Database (Destination)',
+                // Control
+                control_title: 'Initiate Transfer (Saga)',
+                amount_label: 'Amount to Transfer',
+                fail_label: 'Simulate Failure on Step 2 (Trigger Compensation)',
+                fail_desc: 'If checked, the transfer will fail, and the funds will be **rolled back** from Checking.',
+                button_text: 'Run Cross-Service Transfer Saga',
+                // Log
+                log_title: 'Saga Orchestration Log',
+                log_initial: 'Log starts here. Initiate a transfer to begin the distributed transaction process.',
+                // Architecture
+                arch_title: 'Architecture Key: Saga Pattern',
+                arch_desc: 'The Saga pattern is used when a single logical transaction must span multiple microservices, each with its own local database. If any local step fails, a series of **Compensating Transactions** must be triggered to undo prior successful steps, ensuring system-wide data consistency.',
+                // Log Messages
+                log_saga_initiated: (amount) => `Saga initiated for transfer of ${amount} (Source: CHK, Dest: SAV).`,
+                log_debit_init: (amount, id) => `[${id}] Initiating local debit of ${amount}.`,
+                log_debit_success: (amount, id) => `[${id}] Successful: ${amount} debited. Pending Transfer.`,
+                log_debit_fail: (id) => `[${id}] Failed: Insufficient funds. Cannot start Saga.`,
+                log_credit_init: (amount, id) => `[${id}] Attempting local credit of ${amount}.`,
+                log_credit_sim_fail: (id) => `[${id}] **FAILURE SIMULATED:** Account blocked or regulatory limit hit. Cannot credit.`,
+                log_credit_success: (amount, id) => `[${id}] Successful: ${amount} credited.`,
+                log_saga_aborted: (msg) => `SAGA ABORTED: Initial debit failed due to: ${msg}`,
+                log_saga_success: () => `SAGA SUCCESS: All steps completed successfully. Funds transferred.`,
+                log_saga_fail_compensating: () => `SAGA FAILURE: Credit failed. Initiating COMPENSATION step.`,
+                log_compensation_init: (amount, id) => `[${id}] COMPENSATION TRIGGERED! Reversing debit of ${amount}.`,
+                log_compensation_success: (amount, id) => `[${id}] COMPENSATION SUCCESS: ${amount} rolled back. Balances restored.`,
+                log_critical_error: (msg) => `CRITICAL SAGA FAILURE: Unhandled error in Orchestrator: ${msg}`,
+                log_complete: () => `Saga complete. System ready for next transaction.`,
+                log_invalid_amount: () => 'Please enter a valid transfer amount.',
+                log_btn_processing: () => 'Transfer In Progress... (Saga Running)',
+                log_btn_ready: () => 'Run Cross-Service Transfer Saga',
+            },
+            fa: {
+                // Global
+                lang_code: 'fa-IR',
+                dir: 'rtl',
+                title: 'شبیه‌ساز ساگا در بانکداری دیجیتال',
+                header_title: 'شبیه‌ساز الگوی ساگا (Coreless)',
+                header_subtitle: 'تضمین ثبات تراکنش‌ها در سیستم‌های توزیع‌شده.',
+                // Services
+                services_title: 'سرویس‌های اصلی شبیه‌سازی شده',
+                chk_service_name: 'سرویس حساب جاری',
+                chk_db_label: 'پایگاه داده (مبدا وجه)',
+                sav_service_name: 'سرویس حساب پس‌انداز',
+                sav_db_label: 'پایگاه داده (مقصد)',
+                // Control
+                control_title: 'آغاز انتقال وجه (ساگا)',
+                amount_label: 'مبلغ انتقال',
+                fail_label: 'شبیه‌سازی خطا در مرحله دوم (فعال‌سازی جبران خسارت)',
+                fail_desc: 'در صورت فعال‌سازی، انتقال با شکست مواجه شده و وجه از حساب جاری **برگشت** می‌خورد.',
+                button_text: 'اجرای فرآیند ساگای انتقال',
+                // Log
+                log_title: 'سوابق عملیات ساگا',
+                log_initial: 'عملیات از اینجا ثبت می‌شود. برای شروع تراکنش توزیع‌شده، انتقال را آغاز کنید.',
+                // Architecture
+                arch_title: 'معرفی معماری: الگوی ساگا',
+                arch_desc: 'الگوی ساگا زمانی به کار می‌رود که یک تراکنش منطقی باید در چندین میکروسرویس (که هر کدام دیتابیس محلی دارند) اجرا شود. اگر هر مرحله‌ای شکست بخورد، مجموعه‌ای از **تراکنش‌های جبرانی** برای لغو کردن مراحل موفق قبلی اجرا می‌شوند تا ثبات داده‌ها تضمین شود.',
+                 // Log Messages
+                log_saga_initiated: (amount) => `ساگا برای انتقال ${amount} (مبدا: جاری، مقصد: پس‌انداز) شروع شد.`,
+                log_debit_init: (amount, id) => `[${id}] در حال شروع کسر محلی ${amount}.`,
+                log_debit_success: (amount, id) => `[${id}] موفقیت: ${amount} کسر شد. در انتظار تکمیل انتقال.`,
+                log_debit_fail: (id) => `[${id}] شکست: موجودی ناکافی است. ساگا متوقف شد.`,
+                log_credit_init: (amount, id) => `[${id}] در حال اقدام برای واریز محلی ${amount}.`,
+                log_credit_sim_fail: (id) => `[${id}] **شکست شبیه‌سازی شد:** حساب مسدود یا محدودیت قانونی. واریز امکان‌پذیر نیست.`,
+                log_credit_success: (amount, id) => `[${id}] موفقیت: ${amount} با موفقیت واریز شد.`,
+                log_saga_aborted: (msg) => `ساگا لغو شد: کسر اولیه به دلیل ${msg} ناموفق بود.`,
+                log_saga_success: () => `ساگا با موفقیت پایان یافت: تمامی مراحل تکمیل و وجه منتقل شد.`,
+                log_saga_fail_compensating: () => `شکست ساگا: واریز ناموفق بود. در حال فعال‌سازی مرحله **جبران خسارت**.`,
+                log_compensation_init: (amount, id) => `[${id}] جبران خسارت فعال شد! بازگرداندن ${amount} کسر شده.`,
+                log_compensation_success: (amount, id) => `[${id}] جبران موفق: ${amount} برگشت داده شد. موجودی‌ها بازیابی شدند.`,
+                log_critical_error: (msg) => `خطای بحرانی ساگا: خطای نامشخص در هماهنگ‌کننده: ${msg}`,
+                log_complete: () => 'ساگا تکمیل شد. سیستم برای تراکنش بعدی آماده است.',
+                log_invalid_amount: () => 'لطفاً مبلغ انتقال معتبری وارد کنید.',
+                log_btn_processing: () => 'انتقال در حال انجام است... (ساگا فعال)',
+                log_btn_ready: () => 'اجرای فرآیند ساگای انتقال',
+            },
+            ar: {
+                // Global
+                lang_code: 'ar-EG',
+                dir: 'rtl',
+                title: 'الخدمات المصرفية الرقمية: محاكاة نمط ساغا',
+                header_title: 'محاكي نمط ساغا المعماري (Coreless)',
+                header_subtitle: 'إثبات اتساق المعاملات الموزعة بين الخدمات.',
+                // Services
+                services_title: 'الخدمات الأساسية المحاكاة',
+                chk_service_name: 'خدمة الحساب الجاري',
+                chk_db_label: 'قاعدة البيانات (مصدر الأموال)',
+                sav_service_name: 'خدمة حساب التوفير',
+                sav_db_label: 'قاعدة البيانات (الوجهة)',
+                // Control
+                control_title: 'بدء عملية التحويل (ساغا)',
+                amount_label: 'المبلغ المراد تحويله',
+                fail_label: 'محاكاة الفشل في الخطوة 2 (تفعيل التعويض)',
+                fail_desc: 'إذا تم تحديدها، فسيفشل التحويل وسيتم **إرجاع** الأموال من الحساب الجاري.',
+                button_text: 'تشغيل نمط ساغا للتحويل بين الخدمات',
+                // Log
+                log_title: 'سجل تنسيق ساغا',
+                log_initial: 'يبدأ السجل هنا. ابدأ تحويلاً لبدء عملية المعاملات الموزعة.',
+                // Architecture
+                arch_title: 'المفتاح المعماري: نمط ساغا',
+                arch_desc: 'يتم استخدام نمط ساغا عندما يجب أن تشمل معاملة منطقية واحدة خدمات مصغرة متعددة، لكل منها قاعدة بيانات محلية خاصة بها. إذا فشلت أي خطوة محلية، يجب تشغيل سلسلة من **المعاملات التعويضية** للتراجع عن الخطوات الناجحة السابقة، مما يضمن اتساق البيانات على مستوى النظام.',
+                // Log Messages
+                log_saga_initiated: (amount) => `بدء ساغا لتحويل ${amount} (المصدر: جاري، الوجهة: توفير).`,
+                log_debit_init: (amount, id) => `[${id}] بدء الخصم المحلي لمبلغ ${amount}.`,
+                log_debit_success: (amount, id) => `[${id}] نجاح: تم خصم ${amount}. في انتظار التحويل.`,
+                log_debit_fail: (id) => `[${id}] فشل: رصيد غير كافٍ. لا يمكن بدء ساغا.`,
+                log_credit_init: (amount, id) => `[${id}] محاولة الإيداع المحلي لمبلغ ${amount}.`,
+                log_credit_sim_fail: (id) => `[${id}] **محاكاة الفشل:** تم حظر الحساب أو تجاوز الحد التنظيمي. لا يمكن الإيداع.`,
+                log_credit_success: (amount, id) => `[${id}] نجاح: تم إيداع ${amount}.`,
+                log_saga_aborted: (msg) => `تم إجهاض ساغا: فشل الخصم الأولي بسبب: ${msg}`,
+                log_saga_success: () => `نجاح ساغا: اكتملت جميع الخطوات بنجاح. تم تحويل الأموال.`,
+                log_saga_fail_compensating: () => `فشل ساغا: فشل الإيداع. بدء خطوة **التعويض**.`,
+                log_compensation_init: (amount, id) => `[${id}] تم تفعيل التعويض! عكس خصم ${amount}.`,
+                log_compensation_success: (amount, id) => `[${id}] نجاح التعويض: تم إرجاع ${amount}. استعادة الأرصدة.`,
+                log_critical_error: (msg) => `فشل ساغا الحرج: خطأ غير معالج في المنسق: ${msg}`,
+                log_complete: () => `اكتملت ساغا. النظام جاهز للمعاملة التالية.`,
+                log_invalid_amount: () => 'الرجاء إدخال مبلغ تحويل صحيح.',
+                log_btn_processing: () => 'التحويل قيد التقدم... (ساغا قيد التشغيل)',
+                log_btn_ready: () => 'تشغيل نمط ساغا للتحويل بين الخدمات',
+            }
+        };
+
+        let currentLang = 'en'; // Default language
+        
+        // --- Global State & Initialization ---
+        let checkingBalance = 500.00;
+        let savingsBalance = 200.00;
+        let isProcessing = false;
+        
+        const CHECKING_ID = 'CHK-101';
+        const SAVINGS_ID = 'SAV-202';
+
+        // Get UI elements
+        const htmlElement = document.documentElement;
+        const checkingBalanceEl = document.getElementById('checking-balance');
+        const savingsBalanceEl = document.getElementById('savings-balance');
+        const logContainer = document.getElementById('log-container');
+        const transferButton = document.getElementById('transfer-button');
+        const transferAmountInput = document.getElementById('transfer-amount');
+        const failStep2Checkbox = document.getElementById('fail-step-2');
+
+        // --- Internationalization (i18n) Functions ---
+
+        /** Updates the entire UI text based on the current language */
+        function translateUI() {
+            const langData = translations[currentLang];
+            
+            // 1. Set global directionality and lang attribute
+            htmlElement.setAttribute('lang', currentLang);
+            htmlElement.setAttribute('dir', langData.dir);
+            
+            // 2. Translate elements with data-i18n attribute
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (langData[key]) {
+                    el.innerHTML = langData[key];
+                }
+            });
+
+            // 3. Update dynamic button text
+            transferButton.innerHTML = isProcessing ? langData.log_btn_processing() : langData.log_btn_ready();
+
+            // 4. Update language selector buttons state
+            document.querySelectorAll('.inline-flex button').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('bg-gray-700', 'text-gray-400', 'hover:bg-gray-600');
+            });
+            const activeBtn = document.getElementById(`lang-${currentLang}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-gray-700', 'text-gray-400', 'hover:bg-gray-600');
+                activeBtn.classList.add('bg-blue-600', 'text-white');
+            }
+        }
+
+        /** Sets the language and reloads the UI */
+        function setLanguage(lang) {
+            currentLang = lang;
+            translateUI();
+            updateBalances(); // Ensure balances are formatted correctly
+            // Note: Log messages created *before* the language change remain in their original language.
+        }
+
+        // --- Utility Functions ---
+
+        /** Simulates network latency and processing time */
+        function simulateLatency(ms = 1000) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        /** Formats currency display based on current language code */
+        function formatCurrency(amount) {
+            const langCode = translations[currentLang].lang_code;
+            return new Intl.NumberFormat(langCode, { style: 'currency', currency: 'USD' }).format(amount);
+        }
+
+        /** Adds an entry to the transaction log */
+        function log(messageKey, type = 'info', sagaId = null, args = []) {
+            const langData = translations[currentLang];
+            const className = type === 'success' ? 'log-success' : 
+                              type === 'error' ? 'log-error' : 
+                              type === 'warning' ? 'log-warning' : 'log-info';
+            
+            // Resolve message, handling function messages
+            let message;
+            if (typeof langData[messageKey] === 'function') {
+                message = langData[messageKey](...args);
+            } else {
+                message = langData[messageKey] || 'Translation Key Missing';
+            }
+
+            const sagaTag = sagaId ? `<span class="text-gray-500">[ID:${sagaId.substring(0, 8)}]</span> ` : '';
+            const timestamp = new Date().toLocaleTimeString(langData.lang_code);
+            
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${className} text-gray-200`;
+            entry.setAttribute('dir', langData.dir); // Set directionality per entry
+            entry.innerHTML = `<span class="text-gray-500">${timestamp}</span> ${sagaTag} ${message}`;
+            
+            // Clear initial message if present
+            if (logContainer.querySelector('[data-i18n="log_initial"]')) {
+                logContainer.innerHTML = '';
+            }
+            logContainer.prepend(entry);
+        }
+
+        /** Updates the displayed balances */
+        function updateBalances() {
+            checkingBalanceEl.textContent = formatCurrency(checkingBalance);
+            savingsBalanceEl.textContent = formatCurrency(savingsBalance);
+        }
+
+        // --- Microservices Simulation (Local Transactions) ---
+
+        /** 1. Checking Account Service: Tries to debit the source account. */
+        async function checkingService_tryDebit(sagaId, amount) {
+            log('log_debit_init', 'info', sagaId, [formatCurrency(amount), CHECKING_ID]);
+            await simulateLatency(800);
+
+            if (checkingBalance >= amount) {
+                checkingBalance -= amount;
+                updateBalances();
+                log('log_debit_success', 'success', sagaId, [formatCurrency(amount), CHECKING_ID]);
+                return { success: true, message: `Debit successful: ${formatCurrency(amount)}` };
+            } else {
+                log('log_debit_fail', 'error', sagaId, [CHECKING_ID]);
+                return { success: false, message: 'Insufficient funds' };
+            }
+        }
+
+        /** 2. Savings Account Service: Tries to credit the destination account. */
+        async function savingsService_tryCredit(sagaId, amount, shouldFail) {
+            log('log_credit_init', 'info', sagaId, [formatCurrency(amount), SAVINGS_ID]);
+            await simulateLatency(1200);
+
+            if (shouldFail) {
+                log('log_credit_sim_fail', 'error', sagaId, [SAVINGS_ID]);
+                return { success: false, message: 'Simulated Credit Failure' };
+            } else {
+                savingsBalance += amount;
+                updateBalances();
+                log('log_credit_success', 'success', sagaId, [formatCurrency(amount), SAVINGS_ID]);
+                return { success: true, message: 'Credit successful' };
+            }
+        }
+
+        /** 3. Checking Account Service: COMPENSATION TRANSACTION (Rollback) */
+        async function checkingService_compensateDebit(sagaId, amount) {
+            log('log_compensation_init', 'warning', sagaId, [formatCurrency(amount), CHECKING_ID]);
+            await simulateLatency(1000);
+            
+            checkingBalance += amount;
+            updateBalances();
+            log('log_compensation_success', 'warning', sagaId, [formatCurrency(amount), CHECKING_ID]);
+            return { success: true };
+        }
+
+        // --- Coreless Saga Orchestrator Logic ---
+
+        async function startTransfer() {
+            if (isProcessing) return;
+
+            const amount = parseFloat(transferAmountInput.value);
+            const shouldFail = failStep2Checkbox.checked;
+            const sagaId = crypto.randomUUID();
+
+            if (isNaN(amount) || amount <= 0) {
+                log('log_invalid_amount', 'error');
+                return;
+            }
+
+            // UI state management
+            isProcessing = true;
+            transferButton.disabled = true;
+            transferButton.innerHTML = translations[currentLang].log_btn_processing();
+            // Clear log and ensure initial message is correctly translated if needed for the first run
+            logContainer.innerHTML = `<p class="text-gray-500" data-i18n="log_initial">${translations[currentLang].log_initial}</p>`;
+
+            log('log_saga_initiated', 'info', sagaId, [formatCurrency(amount)]);
+            
+            try {
+                // --- Step 1: Try Debit (Local Transaction 1) ---
+                const debitResult = await checkingService_tryDebit(sagaId, amount);
+
+                if (!debitResult.success) {
+                    log('log_saga_aborted', 'error', sagaId, [debitResult.message]);
+                    return; // Saga cannot proceed
+                }
+
+                // --- Step 2: Try Credit (Local Transaction 2) ---
+                const creditResult = await savingsService_tryCredit(sagaId, amount, shouldFail);
+
+                if (creditResult.success) {
+                    // --- SUCCESS PATH: Saga Complete ---
+                    log('log_saga_success', 'success', sagaId);
+                } else {
+                    // --- FAILURE PATH: Trigger Compensation ---
+                    log('log_saga_fail_compensating', 'error', sagaId);
+                    await checkingService_compensateDebit(sagaId, amount);
+                }
+
+            } catch (error) {
+                log('log_critical_error', 'error', sagaId, [error.message]);
+            } finally {
+                // Reset UI state
+                isProcessing = false;
+                transferButton.disabled = false;
+                transferButton.innerHTML = translations[currentLang].log_btn_ready();
+                log('log_complete', 'info');
+            }
+        }
+
+        // --- Initial Load ---
+        window.onload = () => {
+            // Check browser preference, default to English
+            const browserLang = navigator.language.substring(0, 2);
+            if (translations[browserLang]) {
+                setLanguage(browserLang);
+            } else {
+                setLanguage(currentLang); // Default to 'en'
+            }
+        };
+
+    </script>
+</body>
+</html>
